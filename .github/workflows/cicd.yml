@@ -1,0 +1,35 @@
+name: CICD
+
+on:
+  push:
+    branches:
+      - deploy-to-ec2
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v3
+        
+      - name: Login to Docker Hub
+        run: docker login -u ${{ secrets.USERNAME }} -p ${{ secrets.PASSWORD }}
+        
+      - name: Build Docker image
+        run: docker build -t eswardocker1/reactrepository:latest .
+        
+      - name: Publish image to Docker Hub
+        run: docker push eswardocker1/reactrepository:latest
+
+  deploy:
+    needs: build
+    runs-on: self-hosted
+    steps:
+      - name: Pull image from Docker Hub
+        run: docker pull eswardocker1/reactrepository:latest
+        
+      - name: Delete old container
+        run: docker rm -f reactrepository
+        
+      - name: Run Docker container
+        run: docker run -d --name reactrepository -p 3000:80 eswardocker1/reactrepository:latest
