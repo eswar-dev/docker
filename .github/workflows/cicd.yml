@@ -29,7 +29,7 @@ jobs:
         run: docker pull eswardocker1/reactrepository:latest
         
       - name: Delete old container
-        run: docker rm -f reactrepository
+        run: docker rm -f reactContainer
         
       - name: Run Docker container
-        run: docker run -d --name reactrepository -p 3000:80 eswardocker1/reactrepository:latest
+        run: docker run -d --name reactContainer -p 3000:80 eswardocker1/reactrepository:latest
