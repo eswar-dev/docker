@@ -1,15 +1,26 @@
-# Build React app
-FROM node:alpine3.18 as build
+# Use an official Node runtime as a parent image
+FROM node:16-alpine
+
+# Set the working directory
 WORKDIR /app
-COPY package.json .
+
+# Copy package.json and package-lock.json
+COPY package*.json ./
+
+# Install dependencies
 RUN npm install
+
+# Copy the rest of the application code
 COPY . .
+
+# Build the app
 RUN npm run build
 
-# Serve with nginx
-FROM nginx:1.23-alpine
-WORKDIR /usr/share/nginx/html
-RUN rm -rf ./*
-COPY --from=build /app/build .
-EXPOSE 80
-ENTRYPOINT ["nginx", "-g", "daemon off;"]
+# Install serve globally to serve the build
+RUN npm install -g serve
+
+# Expose the port the app runs on
+EXPOSE 4000
+
+# Start the app on port 4000
+CMD ["serve", "-s", "build", "-l", "4000"]
