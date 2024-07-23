@@ -38,5 +38,5 @@ jobs:
           ssh -o StrictHostKeyChecking=no ubuntu@43.205.144.227 << 'EOF'
             docker pull eswardocker1/reactrepository:latest
             docker rm -f reactContainer || true
-            docker run -d -p 4000:80 --name reactContainer eswardocker1/reactrepository:latest
+            docker run -d -p 4000 --name reactContainer eswardocker1/reactrepository:latest
           EOF
