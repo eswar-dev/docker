@@ -11,25 +11,32 @@ jobs:
     steps:
       - name: Checkout Source
         uses: actions/checkout@v3
-        
-      - name: Login to Docker Hub
-        run: docker login -u ${{ secrets.USERNAME }} -p ${{ secrets.PASSWORD }}
-        
-      - name: Build Docker image
-        run: docker build -t eswardocker1/reactrepository:latest .
-        
-      - name: Publish image to Docker Hub
-        run: docker push eswardocker1/reactrepository:latest
 
-  deploy:
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.PASSWORD }}" | docker login -u "${{ secrets.USERNAME }}" --password-stdin
+    
+      - name: Build Docker Image
+        run: docker build -t eswardocker1/reactrepository .
+
+      - name: Publish image to Docker Hub
+        run: docker push eswardocker1/reactrepository:latest   
+
+  deploy: 
     needs: build
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
-      - name: Pull image from Docker Hub
-        run: docker pull eswardocker1/reactrepository:latest
-        
-      - name: Delete old container
-        run: docker rm -f reactContainer
-        
-      - name: Run Docker container
-        run: docker run -d --name reactContainer -p 3000:80 eswardocker1/reactrepository:latest
+      - name: Install SSH client
+        run: sudo apt-get install -y openssh-client
+
+      - name: Add SSH key
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.AWS_SECRET_KEY }}
+
+      - name: Pull image from Docker Hub and deploy on EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no ubuntu@18.143.174.1 << 'EOF'
+            docker pull eswardocker1/reactrepository:latest
+            docker rm -f reactContainer || true
+            docker run -d -p 4000:80 --name reactContainer eswardocker1/reactrepository:latest
+          EOF
