@@ -14,7 +14,7 @@ jobs:
 
       - name: Login to Docker Hub
         run: echo "${{ secrets.PASSWORD }}" | docker login -u "${{ secrets.USERNAME }}" --password-stdin
-    
+
       - name: Build Docker Image
         run: docker build -t eswardocker1/reactrepository .
 
@@ -33,10 +33,17 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.AWS_SECRET_KEY }}
 
-      - name: Pull image from Docker Hub and deploy on EC2
+      - name: Deploy to EC2
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@43.205.144.227 << 'EOF'
-            docker pull eswardocker1/reactrepository:latest
-            docker rm -f reactContainer || true
-            docker run -d -p 4000:80 --name reactContainer eswardocker1/reactrepository:latest
+            sudo bash -c "
+              # Pull the latest Docker image
+              docker pull eswardocker1/reactrepository:latest
+
+              # Stop and remove the old Docker container if it exists
+              docker rm -f reactContainer || true
+
+              # Run the new Docker container
+              docker run -d -p 4000:4000 --name reactContainer eswardocker1/reactrepository:latest
+            "
           EOF
