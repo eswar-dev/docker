@@ -16,7 +16,7 @@ function App() {
           rel="noopener noreferrer"
         >
           Learn Reactsssssssss
-          eswardocker1/reactrepository
+          eswardocker1/reactreposi
         </a>
       </header>
     </div>
