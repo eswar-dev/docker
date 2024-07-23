@@ -35,7 +35,7 @@ jobs:
 
       - name: Pull image from Docker Hub and deploy on EC2
         run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@18.143.174.1 << 'EOF'
+          ssh -o StrictHostKeyChecking=no ubuntu@43.205.144.227 << 'EOF'
             docker pull eswardocker1/reactrepository:latest
             docker rm -f reactContainer || true
             docker run -d -p 4000:80 --name reactContainer eswardocker1/reactrepository:latest
